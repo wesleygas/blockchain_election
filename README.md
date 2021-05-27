@@ -10,6 +10,7 @@
 
 **Todos:**
  - [ ] Geração das carteiras "válidas/registradas" que receberão os tokens
+ - [ ] Desenvolvimento dos testes
  - [ ] O contrado da eleição em si
  - [ ] Integração do externa com algum serviço -> Eventos
  - [ ] Fazer a apresentação
