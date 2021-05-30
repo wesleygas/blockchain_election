@@ -6,7 +6,7 @@ from contextlib import redirect_stdout
 def read_accounts(filename):
     try:
         with open(filename, "r") as f:
-            return f.read().split('\n')
+            return f.read().split('\n')[:-1]
     except FileNotFoundError:
         raise Exception(f"No accounts found in {filename}")
 
