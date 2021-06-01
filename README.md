@@ -14,7 +14,14 @@
  - [ ] O contrado da eleição em si
  - [ ] Integração do externa com algum serviço -> Eventos
  - [ ] Fazer a apresentação
+ 
+ A Apresentação do projeto precisa conter os seguinte elementos:
+ - Introdução/Explicando o problema
+ - Por que o Blockchain ajudaria a resolver o problema?
+ - Vantanges e desvantagens da solução Blockchain
+ - Video demo de no máximo 1 minuto se houver (não fazer uma live demo)
 
+ 
 
 ## Porque
 
