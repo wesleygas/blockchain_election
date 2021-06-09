@@ -1,59 +1,73 @@
 # Plataforma de election v1.0.0
-struct Voter:
-    voted: bool
-    candidate: uint256
-    
-struct Candidate:
-    votes: uint256
-    code: uint256
-    
 
-# owner: public(address)
+owner: public(address)
 end: public(bool)
-users: HashMap[address, Voter]
-candidates: public(HashMap[uint256, Candidate])
+voters: HashMap[address, bool]
+votersCount: public(uint256)
+candidates: HashMap[uint256, uint256]
+candidatesPartial: public(HashMap[uint256, uint256])
+candidatesCount: public(uint256)
 voteCount: public(uint256)
 timeStart: public(uint256)
 timeEnd: public(uint256)
-winner: public(Candidate)
-codes: public(uint256[3])
+winner: public(int128)
+winnerVotes: public(uint256)
+draw: bool
+
+candidatesCounted: uint256
 
 @external
-def __init__(duration: uint256, codes: uint256[3]):
-    # self.owner = msg.sender
-    self.end = False
+def __init__(n: uint256):
+    self.owner = msg.sender
+    self.candidatesCount = n
+    self.winner = -1
+
+@external      
+def initElection(duration: uint256):
+    assert msg.sender == self.owner
     self.timeStart = block.timestamp
     self.timeEnd = self.timeStart + 60*duration # Considerando o tempo em minutos
-    self.voteCount = 0
-    self.codes = codes
-    self.winner = Candidate({
-            votes: 0,
-            code: 0
-        })
-    for i in range(3):
-        self.candidates[codes[i]] = Candidate({
-            votes: 0,
-            code: codes[i]
-        })
+    self.end = False
     
 
+    
 @external
-def vote(code: uint256):
-    assert not self.users[msg.sender].voted
-    assert self.end == False, "Error: election is finished"
+def giveRightToVote(voter: address):
+    assert self.timeStart == 0, "Erro: eleição já iniciada"
+    assert msg.sender == self.owner, "Erro: somente o dono pode dar direito ao voto"
+    assert not self.voters[voter], "Erro: eleitor já tem direito a voto"
+    self.voters[voter] = True
+    self.votersCount += 1
+
+
+
+@external
+def vote(code: uint256) -> uint256:
+    assert self.voters[msg.sender]
     assert block.timestamp < self.timeEnd, "Error: election time is finished"
-    self.candidates[code].votes += 1
+    assert self.end == False, "Error: election is finished"
+    self.candidates[code] += 1
     self.voteCount += 1
-    self.users[msg.sender].voted = True
-    self.users[msg.sender].candidate = code
+    self.voters[msg.sender] = False
+    return code
 
 @external
 def finish():
     assert block.timestamp > self.timeEnd, "Error: wait for the end time"
     self.end = True
-    for i in range(3):
-        if self.candidates[self.codes[i]].votes > self.winner.votes:
-            self.winner = self.candidates[self.codes[i]]
 
-
-        
+@external
+def getWinner():
+    assert self.end == True
+    for idx in range(self.candidatesCounted, self.candidatesCounted + 5):
+        if idx > self.candidatesCount:
+            return
+        if self.candidates[idx] > self.winnerVotes:
+            self.winner = convert(idx, int128)
+            self.winnerVotes = self.candidates[idx]
+            self.draw = False
+        elif self.candidates[idx] == self.winnerVotes:
+            self.draw = True
+            self.winner = -2
+        self.candidatesPartial[idx] = self.candidates[idx]
+    self.candidatesCounted += 5
